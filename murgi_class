@@ -1,0 +1,29 @@
+class Murgi:
+    def __init__(self, number, info):
+        self.number = number
+        self.info = info
+
+    def display(self):
+        print(f"Murgi No: {self.number}, Info: {self.info}")
+
+
+class MurgiFactory:
+    _murgi_objects = {}  # Dictionary to store only one object per Murgi number
+
+    @classmethod
+    def get_murgi(cls, number, info=None):
+        if number not in cls._murgi_objects:
+            cls._murgi_objects[number] = Murgi(number, info)
+        return cls._murgi_objects[number]
+
+
+# --- Example usage ---
+if __name__ == "__main__":
+    m1 = MurgiFactory.get_murgi(17, "Brown Chicken, Age 2 years")
+    m2 = MurgiFactory.get_murgi(17, "White Chicken, Age 3 years")  # Same number
+
+    print(m1 is m2)  # ✅ True — both are same object
+    m1.display()     # Murgi No: 17, Info: Brown Chicken, Age 2 years
+
+    m3 = MurgiFactory.get_murgi(18, "White Chicken, Age 1 year")
+    m3.display()
