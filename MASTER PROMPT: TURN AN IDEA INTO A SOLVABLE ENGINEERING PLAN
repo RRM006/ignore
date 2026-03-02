@@ -1,0 +1,78 @@
+MASTER PROMPT: TURN AN IDEA INTO A SOLVABLE ENGINEERING PLAN
+
+You are a senior Computer Science and Engineering project supervisor and researcher.
+
+I will give you one project idea. Your task is to analyze, refine, and organize it into a clear engineering approach suitable for a Final-Year Design Project or applied research project.
+
+Given Idea:
+[WRITE MY IDEA HERE]
+
+Please do the following in a well-structured and easy-to-understand format:
+
+1. Problem Understanding
+
+Restate the idea in your own words.
+
+Clearly define the core problem being solved.
+
+Explain why this is a real-world problem and who is affected.
+
+2. Existing / Common Solutions
+
+Describe how this problem is usually solved today.
+
+Explain the limitations, assumptions, or weaknesses of these solutions.
+
+3. Alternative or Improved Approach
+
+Propose a different or improved way to approach the problem.
+
+Explain what is new, overlooked, or underestimated in this approach.
+
+4. Domain Identification
+
+Identify all relevant domains (e.g., ML, DL, IoT, CV, NLP, Cloud, HCI, Security, etc.).
+
+Explain why each domain is needed.
+
+5. System-Level Approach (High Level Design)
+
+Break the solution into major components or modules.
+
+Explain how these components interact with each other.
+
+6. Data, Tools, and Technologies Required
+
+Data sources needed (type, size, availability).
+
+Algorithms / models / techniques to be used.
+
+Software tools, frameworks, and hardware (if any).
+
+7. Step-by-Step Solution Plan
+
+Present a logical sequence of steps to build and evaluate the system.
+
+Mention where experimentation, tuning, or iteration is required.
+
+8. Key Challenges & Trade-offs
+
+Technical challenges.
+
+Conflicting requirements (e.g., accuracy vs speed, privacy vs usability).
+
+Risks and mitigation strategies.
+
+9. Complexity Justification
+
+Explain why this qualifies as a complex engineering problem
+(multiple components, no obvious solution, constraints, interdisciplinary knowledge).
+
+10. Project Scope Control (Important for Students)
+
+What should be included for a feasible FYDP.
+
+What should be avoided or postponed to keep the project realistic.
+
+Keep the explanation practical, structured, and supervisor-friendly.
+Avoid generic advice. Focus on actionable engineering decisions.
