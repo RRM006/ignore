@@ -1,491 +1,605 @@
 % =====================================================================
-%  CSE499A — AI Medical Pre-Screening Assistant
-%  Chapter: Project Design (Updated) — ≤10 pages
+%  CSE499 — AI Medical Pre-Screening Assistant
+%  Project Design (Updated for CSE499B Final Submission)
 %  Authors: Rafiur Rahman Mashrafi (2221971042),
 %           M.G. Rabbi Hossen (2222516042),
 %           Israt Zaman Srity (2211084042)
 %  Advisor: Dr. Mohammad Ashrafuzzaman Khan [AzK]
-%  Dept. of ECE, North South University · Spring 2026
+%  Dept. of ECE, North South University · Summer 2026
 % =====================================================================
 \documentclass[11pt,a4paper]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{mathptmx}
-\usepackage[a4paper, top=0.85in, bottom=0.85in, left=0.9in, right=0.9in]{geometry}
+\usepackage[a4paper, top=0.80in, bottom=0.80in, left=0.85in, right=0.85in]{geometry}
 \usepackage{setspace}
 \usepackage{enumitem}
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{array}
-\usepackage{multicol}
 \usepackage{tikz}
 \usepackage[hidelinks]{hyperref}
 \usepackage{titlesec}
 \usepackage{xcolor}
 \usepackage{caption}
 \usepackage{float}
-\usepackage{parskip}
-
-\usetikzlibrary{shapes,shapes.geometric,arrows.meta,positioning,fit,backgrounds,shadows,calc}
 \usepackage{wasysym}
+
+\usetikzlibrary{shapes,shapes.geometric,arrows.meta,positioning,
+                fit,backgrounds,shadows.blur,calc}
 
 \setstretch{1.1}
 \setlength{\parskip}{3pt}
 \setlength{\parindent}{0pt}
 
-\titleformat{\section}{\normalfont\large\bfseries}{\thesection}{0.6em}{}[\vspace{-4pt}\rule{\linewidth}{0.4pt}]
+\titleformat{\section}{\normalfont\large\bfseries}{\thesection}{0.6em}{}%
+            [\vspace{-4pt}\rule{\linewidth}{0.5pt}]
 \titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
 \titlespacing{\section}{0pt}{8pt}{4pt}
 \titlespacing{\subsection}{0pt}{5pt}{2pt}
 
-% ── colour palette ──────────────────────────────────────────────────
-\definecolor{modblue}{RGB}{52,101,164}
-\definecolor{modbluelt}{RGB}{210,225,245}
-\definecolor{alertred}{RGB}{192,0,0}
-\definecolor{alertlt}{RGB}{255,220,220}
-\definecolor{looporg}{RGB}{180,95,6}
-\definecolor{looporlt}{RGB}{255,235,205}
-\definecolor{dbgray}{RGB}{80,80,80}
-\definecolor{dbgraylt}{RGB}{230,230,230}
-\definecolor{greenlt}{RGB}{200,235,200}
-\definecolor{greendark}{RGB}{30,120,30}
-\definecolor{headgray}{RGB}{50,50,50}
+%% ── Colour palette ────────────────────────────────────────────────
+\definecolor{cblue}{RGB}{30,90,160}      % core NLP
+\definecolor{cbluelt}{RGB}{215,230,248}
+\definecolor{cred}{RGB}{180,0,0}         % emergency
+\definecolor{credlt}{RGB}{255,218,218}
+\definecolor{corange}{RGB}{160,80,0}     % adaptive loop
+\definecolor{corangelt}{RGB}{255,235,200}
+\definecolor{cgreen}{RGB}{20,110,30}     % doctor side
+\definecolor{cgreenlt}{RGB}{210,240,210}
+\definecolor{cgray}{RGB}{80,80,80}       % database
+\definecolor{cgraylt}{RGB}{232,232,232}
+\definecolor{dark}{RGB}{40,40,40}
 
-\captionsetup{font=small,labelfont=bf,skip=4pt}
+\captionsetup{font=small,labelfont=bf,skip=3pt}
 
-% ── TikZ styles ─────────────────────────────────────────────────────
+%% ── Shared TikZ node & arrow styles ──────────────────────────────
 \tikzset{
-  mod/.style={rectangle, rounded corners=4pt,
-    draw=modblue, fill=modbluelt, line width=0.8pt,
-    text width=28mm, minimum height=9mm, align=center,
-    font=\scriptsize\bfseries\color{modblue}, drop shadow},
-  alertmod/.style={rectangle, rounded corners=4pt,
-    draw=alertred, fill=alertlt, line width=1pt,
-    text width=28mm, minimum height=9mm, align=center,
-    font=\scriptsize\bfseries\color{alertred}, drop shadow},
-  loopmod/.style={rectangle, rounded corners=4pt,
-    draw=looporg, fill=looporlt, line width=0.8pt,
-    text width=28mm, minimum height=9mm, align=center,
-    font=\scriptsize\bfseries\color{looporg}, drop shadow},
-  dbmod/.style={cylinder, draw=dbgray, fill=dbgraylt,
-    shape border rotate=90, aspect=0.3,
-    text width=22mm, minimum height=9mm, align=center,
-    font=\scriptsize\bfseries\color{dbgray}, drop shadow},
-  greenmod/.style={rectangle, rounded corners=4pt,
-    draw=greendark, fill=greenlt, line width=0.8pt,
-    text width=28mm, minimum height=9mm, align=center,
-    font=\scriptsize\bfseries\color{greendark}, drop shadow},
-  decision/.style={diamond, draw=looporg, fill=looporlt,
-    line width=0.8pt, aspect=2.2,
-    text width=20mm, minimum height=8mm, align=center,
-    font=\tiny\bfseries\color{looporg}, drop shadow},
-  arr/.style={-{Stealth[length=4pt]}, line width=0.7pt, color=headgray},
-  redarr/.style={-{Stealth[length=4pt]}, line width=0.9pt, color=alertred},
-  orgarr/.style={-{Stealth[length=4pt]}, line width=0.7pt, color=looporg},
-  grnarr/.style={-{Stealth[length=4pt]}, line width=0.7pt, color=greendark},
-  lbl/.style={font=\tiny, color=headgray}
+  %% boxes
+  nlp/.style   ={rectangle,rounded corners=4pt,draw=cblue,  fill=cbluelt,
+                 line width=0.8pt,text width=52mm,minimum height=10mm,
+                 align=center,font=\small\bfseries\color{cblue}},
+  emg/.style   ={rectangle,rounded corners=4pt,draw=cred,   fill=credlt,
+                 line width=1.0pt,text width=52mm,minimum height=10mm,
+                 align=center,font=\small\bfseries\color{cred}},
+  lop/.style   ={rectangle,rounded corners=4pt,draw=corange,fill=corangelt,
+                 line width=0.8pt,text width=52mm,minimum height=10mm,
+                 align=center,font=\small\bfseries\color{corange}},
+  doc/.style   ={rectangle,rounded corners=4pt,draw=cgreen, fill=cgreenlt,
+                 line width=0.8pt,text width=52mm,minimum height=10mm,
+                 align=center,font=\small\bfseries\color{cgreen}},
+  dbs/.style   ={cylinder,shape border rotate=90,aspect=0.30,
+                 draw=cgray,fill=cgraylt,line width=0.8pt,
+                 text width=46mm,minimum height=10mm,
+                 align=center,font=\small\bfseries\color{cgray}},
+  dec/.style   ={diamond,draw=corange,fill=corangelt,line width=0.9pt,
+                 aspect=3.0,text width=30mm,minimum height=9mm,
+                 align=center,font=\small\bfseries\color{corange}},
+  alrtbox/.style={rectangle,rounded corners=4pt,draw=cred,fill=credlt,
+                 line width=1pt,text width=44mm,minimum height=10mm,
+                 align=center,font=\small\bfseries\color{cred}},
+  startend/.style={rectangle,rounded corners=8pt,draw=dark,fill=gray!18,
+                  line width=0.8pt,text width=52mm,minimum height=10mm,
+                  align=center,font=\small\bfseries\color{dark}},
+  %% arrows
+  ga/.style={-{Stealth[length=5pt,width=4pt]},line width=0.8pt,color=dark},
+  ra/.style={-{Stealth[length=5pt,width=4pt]},line width=1.0pt,color=cred},
+  oa/.style={-{Stealth[length=5pt,width=4pt]},line width=0.8pt,color=corange},
+  %% label
+  lbl/.style={font=\scriptsize\bfseries,color=dark,fill=white,
+              inner sep=1pt,rounded corners=2pt}
 }
 
-% ====================================================================
-\title{\vspace{-18pt}\bfseries\large Project Design (Updated)\\[3pt]
-{\normalsize AI Medical Pre-Screening Assistant}\\
-{\small EHR-Based Pre-Consultation Medical Documentation System}}
-\author{\small Rafiur Rahman Mashrafi (2221971042)\quad
-        M.~G.~Rabbi Hossen (2222516042)\quad
-        Israt Zaman Srity (2211084042)\\[3pt]
-        \small\emph{Advisor:} Dr.~Mohammad Ashrafuzzaman Khan [AzK]\\
-        \small Dept.\ of ECE, North South University, Bangladesh}
-\date{\small CSE499A — Spring 2026}
+%% ── Title ─────────────────────────────────────────────────────────
+\title{\vspace{-20pt}%
+  \bfseries Project Design (Updated for CSE499B Final Submission):\\[4pt]
+  AI Medical Pre-Screening Assistant\\[3pt]
+  \normalfont\normalsize
+  From a 5-Stage ASR Pipeline to a 15-Module Conversational Clinical
+  Intelligence System}
+\author{%
+  Rafiur Rahman Mashrafi (ID 2221971042)\quad
+  M.~G.~Rabbi Hossen (ID 2222516042)\quad
+  Israt Zaman Srity (ID 2211084042)\\[5pt]
+  \emph{Faculty Advisor:} Dr.~Mohammad Ashrafuzzaman Khan [AzK]\\
+  Department of Electrical and Computer Engineering\\
+  North South University, Bangladesh}
+\date{Senior Design Project (CSE499) \quad Summer 2026}
 
+% ===================================================================
 \begin{document}
-\maketitle\vspace{-10pt}
-\rule{\linewidth}{0.6pt}
+\maketitle
+\vspace{-8pt}\rule{\linewidth}{0.7pt}
 
-% ====================================================================
+% ===================================================================
 \section{Introduction}
-% ====================================================================
+% ===================================================================
 
-This chapter presents the \textbf{updated} design of the \textit{AI
-Medical Pre-Screening Assistant}. The original CSE499A design was a
-five-stage, one-shot pipeline: patient speech $\to$ ASR $\to$ Medical
-NER $\to$ Structured EHR $\to$ Doctor Dashboard. Based on empirical
-findings from Phases~2 and~3 and a review of clinical NLP requirements,
-the design has been expanded to \textbf{15 functional modules} that add:
-an adaptive conversational follow-up loop, emergency detection,
-risk classification, explainable AI, and a continuous feedback and
-learning mechanism. The system remains a \textit{pre-screening and
-decision-support tool}; all final clinical decisions belong to the
-attending physician.
+This chapter presents the \textbf{updated} project design of the
+\textit{AI Medical Pre-Screening Assistant}.  The original CSE499A
+design was a five-stage, one-shot pipeline: Patient Speech $\to$ ASR
+$\to$ Medical NER $\to$ Structured EHR $\to$ Doctor Dashboard.
+Empirical findings from Phases~2 and~3 revealed that this linear
+approach was insufficient: (i)~patients frequently omit critical
+clinical information in a single recording, (ii)~there was no mechanism
+to handle life-threatening emergencies, and (iii)~the system provided
+no explanation of its outputs. The design has therefore been expanded
+to \textbf{15 functional modules} that add an adaptive conversational
+follow-up loop, emergency detection, risk classification, explainable
+AI, and a doctor feedback and retraining pipeline. The system
+remains strictly a \textit{pre-screening and decision-support tool};
+all final clinical authority rests with the attending physician.
 
-% ====================================================================
+% ===================================================================
 \section{Design Comparison: Original vs.\ Updated}
-% ====================================================================
+% ===================================================================
 
-\begin{center}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{1.25}
-\begin{tabularx}{\linewidth}{>{\bfseries}p{2.8cm} X X}
+\footnotesize\setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\linewidth}{>{\bfseries}p{2.9cm} X X}
 \toprule
-Dimension & \textbf{Original (5 stages)} & \textbf{Updated (15 modules)} \\
+Dimension & \textbf{Original (5 stages, CSE499A)} & \textbf{Updated (15 modules, CSE499B)} \\
 \midrule
-Interaction model   & One-shot recording; no follow-up
-                    & Conversational loop; adaptive follow-up until profile is complete \\
-Emergency detection & Absent
-                    & Module~5: rule-based + AI classifier; immediate alert pathway \\
-Information gaps    & Absent
-                    & Module~6: structured completeness checklist per symptom category \\
-Risk classification & Differential hints only
-                    & Module~10: Low / Medium / High / Critical with clinical rule engine \\
-Explainability      & Absent
-                    & Module~11 (XAI): plain-language driver explanations for every risk score \\
-Clinical report     & Basic structured EHR
-                    & Module~12: full 8-section pre-screening report; PDF + dashboard export \\
-Feedback \& learning & Absent
-                    & Module~15: doctor annotations feed model retraining pipeline \\
-Bangla support      & ASR \& transcript only
-                    & End-to-end bilingual; follow-up questions generated in Bangla or English \\
-\bottomrule
-\end{tabularx}
-\end{center}
-
-% ====================================================================
-\section{Updated System Architecture — 15 Modules}
-% ====================================================================
-
-\subsection{Complete Pipeline Diagram}
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[node distance=5.5mm and 6mm]
-
-%% ── COLUMN A: Core NLP (left) ──────────────────────────────────────
-\node[mod]      (m1)  {M1\\Speech-to-Text};
-\node[mod, below=of m1] (m2)  {M2\\Text Processing\\\& Normalisation};
-\node[mod, below=of m2] (m3)  {M3\\Information\\Extraction (NER)};
-\node[mod, below=of m3] (m4)  {M4\\Initial Clinical\\Summary};
-\node[alertmod, below=of m4] (m5)  {M5\\Emergency\\Detection};
-\node[mod, below=of m5] (m6)  {M6\\Missing Info\\Analysis};
-
-%% ── COLUMN B: Loop (centre) ────────────────────────────────────────
-\node[loopmod, right=20mm of m3] (m7) {M7\\Follow-up\\Question Gen.};
-\node[loopmod, below=of m7]      (pat){Patient\\Answers};
-\node[loopmod, below=of pat]     (m8) {M8\\Response Processing\\\& Profile Update};
-\node[decision, below=of m8]     (m9) {M9\\Complete?};
-
-%% ── COLUMN C: Assessment + Storage (right) ──────────────────────────
-\node[mod,      right=20mm of m7]  (m10){M10\\Risk\\Assessment};
-\node[mod,      below=of m10]      (m11){M11\\Explainable AI\\(XAI)};
-\node[mod,      below=of m11]      (m12){M12\\Clinical Report\\Generation};
-\node[dbmod,    below=of m12]      (m13){M13\\EHR Database};
-\node[greenmod, below=of m13]      (m14){M14\\Doctor\\Dashboard};
-\node[greenmod, below=of m14]      (m15){M15\\Feedback \&\\Continuous Learning};
-
-%% ── ARROWS: Column A ───────────────────────────────────────────────
-\draw[arr] (m1)--(m2);
-\draw[arr] (m2)--(m3);
-\draw[arr] (m3)--(m4);
-\draw[arr] (m4)--(m5);
-\draw[arr] (m5)--(m6);
-
-%% Emergency side exit
-\draw[redarr] (m5.east) --++(8mm,0)
-  node[right, align=center, font=\tiny\bfseries\color{alertred}]{ALERT\\Staff};
-
-%% M6 → M7
-\draw[arr] (m6.east) -| ($(m6.east)+(10mm,0)$) |-
-  node[lbl, pos=0.3, right]{gap list} (m7.west);
-
-%% ── ARROWS: Loop ───────────────────────────────────────────────────
-\draw[orgarr] (m7)--(pat);
-\draw[orgarr] (pat)--(m8);
-\draw[orgarr] (m8)--(m9);
-
-%% M9 → incomplete back to M7
-\draw[orgarr] (m9.west) --++(-7mm,0)
-  node[lbl, above, pos=0.7]{incomplete}
-  |- ($(m7.west)+(-7mm,0)$) -- (m7.west);
-
-%% M9 → complete → M10
-\draw[arr] (m9.north) -- ($(m9.north)+(0,6mm)$)
-  -| node[lbl, pos=0.3, above]{complete} (m10.south);
-
-%% ── ARROWS: Column C ───────────────────────────────────────────────
-\draw[arr] (m10)--(m11);
-\draw[arr] (m11)--(m12);
-\draw[arr] (m12)--(m13);
-\draw[arr] (m13)--(m14);
-\draw[arr] (m14)--(m15);
-
-%% Feedback loop back
-\draw[grnarr] (m15.west) --++(-6mm,0)
-  |- node[lbl, pos=0.25, left]{retrain} (m2.west);
-
-%% ── LEGEND box ─────────────────────────────────────────────────────
-\begin{scope}[shift={($(m1.north west)+(-2mm,8mm)$)}]
-  \node[mod,    text width=15mm, minimum height=6mm, font=\tiny\bfseries\color{modblue}]
-       at (0,0)   (l1){Core NLP};
-  \node[alertmod,text width=15mm, minimum height=6mm, font=\tiny\bfseries\color{alertred}]
-       at (20mm,0)(l2){Emergency};
-  \node[loopmod, text width=15mm, minimum height=6mm, font=\tiny\bfseries\color{looporg}]
-       at (40mm,0)(l3){Loop};
-  \node[greenmod,text width=15mm, minimum height=6mm, font=\tiny\bfseries\color{greendark}]
-       at (60mm,0)(l4){Doctor Side};
-  \node[dbmod,   text width=15mm, minimum height=6mm, font=\tiny\bfseries\color{dbgray}]
-       at (80mm,0)(l5){Database};
-\end{scope}
-
-\end{tikzpicture}
-\caption{Complete 15-module pipeline. Orange = adaptive follow-up loop;
-         red = emergency escalation path; green = doctor-facing modules.}
-\label{fig:pipeline}
-\end{figure}
-
-\subsection{Module Descriptions}
-
-\begin{description}[leftmargin=0pt, labelwidth=0pt, style=nextline,
-                    itemsep=2pt, parsep=0pt]
-
-\item[\textbf{M1 — Speech-to-Text.}]
-Accepts Bangla, Banglish, and regional dialect speech. Audio is
-VAD-segmented into 10--15\,s clips and transcribed by the
-best-performing ASR model identified in Phase~2
-(\textit{BengaliAI Regional}: 46.94\% WER on dialect; target for
-CSE499B fine-tuning: $<$20\% WER via LoRA on Qwen3-ASR-1.7B).
-
-\item[\textbf{M2 — Text Processing \& Normalisation.}]
-Spelling correction, Banglish normalisation, filler removal, punctuation
-restoration, and sentence-boundary detection. Bilingual
-Bangla--English handling throughout.
-
-\item[\textbf{M3 — Information Extraction (NER).}]
-BanglaBERT token classifier labels: \textit{symptom, affected site,
-duration, severity, frequency, age, comorbidity, medication}. Temporal
-expressions normalised to ISO~8601-like intervals.
-
-\item[\textbf{M4 — Initial Clinical Summary.}]
-Short human-readable summary of the chief complaint, e.g.\ \textit{``Fever
-and dry cough for 3 days; mild fatigue; no dyspnoea or chest pain.''}
-Used downstream and displayed on the dashboard.
-
-\item[\textbf{M5 — Emergency Detection} \textcolor{alertred}{(new).}]
-Rule-based critical-symptom checker + AI classifier for ambiguous
-presentations. Red-flag triggers: chest pain, stroke indicators, severe
-dyspnoea, loss of consciousness, acute trauma. Escalates immediately;
-bypasses the normal pipeline flow.
-
-\item[\textbf{M6 — Missing Information Analysis} \textcolor{alertred}{(new).}]
-Compares extracted entities against a per-symptom clinical checklist and
-outputs a structured gap report (e.g.\ \CheckedBox~Fever detected;
-\XBox~Duration not specified; \XBox~Temperature not provided).
-
-\item[\textbf{M7 — Follow-up Question Generation} \textcolor{looporg}{(new).}]
-Generates clinically prioritised questions in Bangla or English to fill
-identified gaps. Avoids repeating answered items. Example:
-\textit{``Apnar jwor ki matro kal theke?''} / \textit{``When did the fever start?''}
-
-\item[\textbf{M8 — Response Processing \& Profile Update} \textcolor{looporg}{(new).}]
-Patient answers re-enter Modules~2--3. Extracted entities are merged into
-the profile with conflict resolution; filled gaps are marked.
-
-\item[\textbf{M9 — Case Completion Check} \textcolor{looporg}{(new).}]
-Scores profile completeness against a configurable threshold.
-If incomplete: loops back to M7. If complete (or max turns reached):
-continues to M10.
-
-\item[\textbf{M10 — Risk Assessment} \textcolor{alertred}{(new).}]
-Assigns one of four tiers — \textbf{Low / Medium / High / Critical} —
-using a clinical rule engine weighted by age, comorbidities, severity,
-and duration. Integrates M5 output.
-
-\item[\textbf{M11 — Explainable AI (XAI)} \textcolor{alertred}{(new).}]
-SHAP/LIME feature attribution converted to plain language: e.g.\
-\textit{``High risk: fever $>$5 days + dyspnoea + age $>$65.''}
-Displayed alongside every risk classification.
-
-\item[\textbf{M12 — Clinical Report Generation} \textcolor{alertred}{(new).}]
-Produces an 8-section pre-screening report: Patient Profile, Chief
-Complaint, Symptoms, Emergency Flags, Q\&A Log, Risk Level + XAI,
-Possible Condition Categories, Recommended Next Steps. Exported as PDF
-and to the dashboard.
-
-\item[\textbf{M13 — EHR Database.}]
-HIPAA/PDPA-compliant PostgreSQL store with encryption at rest and in
-transit. Stores transcripts, extracted data, follow-up exchanges, risk
-assessments, and final reports. Full audit logging.
-
-\item[\textbf{M14 — Doctor Dashboard} (extended from original).]
-Displays the report, risk tier, emergency flags, and XAI explanation.
-Supports annotation and override of any extracted field (all changes
-versioned). Real-time notifications for High/Critical cases.
-
-\item[\textbf{M15 — Feedback \& Continuous Learning} \textcolor{greendark}{(new).}]
-Doctors rate reports, correct extractions, flag missed symptoms, and
-annotate risk disagreements. Feedback drives periodic model retraining
-for M3, M7, and M10, subject to regression testing before deployment.
-
-\end{description}
-
-% ====================================================================
-\section{System Flowchart — Patient Journey}
-% ====================================================================
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[node distance=4.5mm and 10mm,
-  proc/.style={rectangle, rounded corners=3pt,
-    draw=modblue, fill=modbluelt, line width=0.7pt,
-    text width=36mm, minimum height=8mm, align=center,
-    font=\scriptsize\bfseries\color{modblue}},
-  term/.style={rectangle, rounded corners=8pt,
-    draw=headgray, fill=gray!15, line width=0.7pt,
-    text width=36mm, minimum height=8mm, align=center,
-    font=\scriptsize\bfseries},
-  dec/.style={diamond, draw=looporg, fill=looporlt,
-    line width=0.7pt, aspect=2.8,
-    text width=28mm, minimum height=7mm, align=center,
-    font=\scriptsize\bfseries\color{looporg}},
-  alrt/.style={rectangle, rounded corners=3pt,
-    draw=alertred, fill=alertlt, line width=0.8pt,
-    text width=36mm, minimum height=8mm, align=center,
-    font=\scriptsize\bfseries\color{alertred}},
-  arr/.style={-{Stealth[length=4pt]}, line width=0.6pt, color=headgray},
-  redarr/.style={-{Stealth[length=4pt]}, line width=0.8pt, color=alertred},
-  orgarr/.style={-{Stealth[length=4pt]}, line width=0.6pt, color=looporg},
-  lbl/.style={font=\tiny, color=headgray}
-]
-
-\node[term]  (start) {Patient arrives\\speaks in Bangla/Banglish};
-\node[proc, below=of start]  (asr)   {M1 -- M4: ASR + NLP\\+ Clinical Summary};
-\node[dec,  below=of asr]    (emerg) {Emergency\\Detected?};
-\node[alrt, right=22mm of emerg] (alert){M5: ALERT\\Escalate to Staff};
-\node[proc, below=of emerg]  (gap)   {M6: Missing Info\\Analysis};
-\node[proc, below=of gap]    (qgen)  {M7: Generate\\Follow-up Questions};
-\node[proc, below=of qgen]   (pans)  {Patient Answers\\(M8: Profile Update)};
-\node[dec,  below=of pans]   (comp)  {Profile\\Complete?};
-\node[proc, below=of comp]   (risk)  {M10: Risk Assessment\\M11: XAI Explanation};
-\node[proc, below=of risk]   (rep)   {M12: Generate\\Clinical Report};
-\node[proc, below=of rep]    (store) {M13: Store in\\EHR Database};
-\node[proc, below=of store]  (dash)  {M14: Doctor Reviews\\Dashboard};
-\node[proc, below=of dash]   (fb)    {M15: Doctor Feedback\\→ Retrain Models};
-\node[term, below=of fb]     (end)   {Consultation Begins};
-
-%% Main flow
-\draw[arr] (start)--(asr);
-\draw[arr] (asr)--(emerg);
-\draw[redarr] (emerg.east)--node[lbl,above]{Yes}(alert.west);
-\draw[arr] (emerg.south)--node[lbl,right]{No}(gap);
-\draw[arr] (gap)--(qgen);
-\draw[arr] (qgen)--(pans);
-\draw[arr] (pans)--(comp);
-%% Loop back
-\draw[orgarr] (comp.west)--++(-12mm,0)
-  node[lbl,above,pos=0.6]{No}
-  |-($(qgen.west)+(-12mm,0)$)--(qgen.west);
-\draw[arr] (comp.south)--node[lbl,right]{Yes}(risk);
-\draw[arr] (risk)--(rep);
-\draw[arr] (rep)--(store);
-\draw[arr] (store)--(dash);
-\draw[arr] (dash)--(fb);
-\draw[arr] (fb)--(end);
-
-\end{tikzpicture}
-\caption{Patient journey flowchart through all 15 modules.
-         The orange loop iterates until the clinical profile is sufficiently complete.}
-\label{fig:flowchart}
-\end{figure}
-
-% ====================================================================
-\section{Software Components}
-% ====================================================================
-
-\footnotesize\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.2}
-\begin{tabularx}{\linewidth}{>{\bfseries}p{2.4cm} p{3.2cm} X}
-\toprule
-Tool & Function & Rationale \\
-\midrule
-Python 3.10        & Implementation language           & Standard ML/NLP ecosystem \\
-PyTorch 2.x        & Deep-learning framework           & Native support across all benchmarked ASR models \\
-HF Transformers    & Model loading \& inference        & Unified API: Whisper, Wav2Vec2, MMS, Qwen-Audio, Phi-4 \\
-HF PEFT / Accelerate & LoRA fine-tuning (CSE499B)     & Lowest friction with Transformers for parameter-efficient tuning \\
-BanglaBERT         & Medical NER (M3)                  & Pre-trained on large Bangla corpus; best Bangla NLP results \\
-WhisperX           & VAD segmentation (M1)             & Required for audio $>$30\,s; forced alignment \\
-LIME / SHAP        & XAI feature attribution (M11)     & Standard, well-documented explainability libraries \\
-FastAPI            & Backend REST/WebSocket (M8--M13)  & Async; low latency for real-time follow-up dialogue \\
-PostgreSQL         & EHR database (M13)                & Mature; encryption-at-rest support; HIPAA-ready \\
-React / Next.js    & Doctor dashboard (M14)            & Low-bandwidth responsive UI; role-based access \\
-Flutter / PWA      & Patient kiosk app (M1 interface)  & Low-tech-literacy UX; single record button; Bangla prompts \\
-MLflow             & Feedback \& retraining (M15)      & Experiment tracking; model versioning \\
-\texttt{jiwer}     & WER / CER / BLEU scoring          & Standard ASR evaluation metric library \\
-Google Colab       & GPU compute (T4 / A100)           & Free tier sufficient for inference benchmarks \\
+Interaction model
+  & One-shot recording; no follow-up
+  & Conversational loop; adaptive questions until profile is complete \\
+Emergency detection
+  & Absent
+  & Module~5: rule-based + AI classifier; immediate escalation alert \\
+Information gap analysis
+  & Absent
+  & Module~6: structured checklist per symptom category \\
+Risk classification
+  & Differential hints only
+  & Module~10: Low / Medium / High / Critical with clinical rule engine \\
+Explainability
+  & Absent
+  & Module~11 (XAI): SHAP/LIME plain-language driver report \\
+Clinical report
+  & Basic structured EHR
+  & Module~12: full 8-section pre-screening report; PDF + dashboard \\
+Doctor feedback loop
+  & Absent
+  & Module~15: annotations drive model retraining pipeline \\
+Bangla/Banglish support
+  & ASR \& transcript only
+  & End-to-end bilingual; follow-up questions in Bangla or English \\
 \bottomrule
 \end{tabularx}
 \normalsize
 
-% ====================================================================
-\section{CSE499A Implementation Phases}
-% ====================================================================
+% ===================================================================
+\section{Updated System Architecture --- 15 Modules}
+% ===================================================================
 
-\begin{description}[leftmargin=0pt, style=nextline, itemsep=2pt, parsep=0pt]
+\subsection{Complete Pipeline Diagram}
 
-\item[\textbf{Phase 1 — Audio Collection \& Preprocessing}] \textit{Demo: 12 Mar 2026.}
-Multi-dialect corpus assembled (Dhakaiya, Barishali, Sylheti, Normal,
-Indian Bangla). Files logged in \texttt{dataset\_log.csv}. Preprocessed
-to 16\,kHz mono PCM; segmented by WhisperX VAD.
-Final corpus: $\approx$4.7\,h, 10 sources, $\sim$1{,}100 clips.
+The pipeline flows \textbf{top-to-bottom} in a single main column.
+The adaptive follow-up loop (Modules~7--9, orange) branches to the right
+and returns. The emergency alert (Module~5, red) exits to the right.
+The feedback path (Module~15, green) returns left to Module~2.
 
-\item[\textbf{Phase 2 — Baseline ASR Benchmark (12 models)}] \textit{Demo: 2 Apr 2026.}
-Whisper (S/M/L/Turbo), Wav2Vec2 variants, MMS, Vakyansh-Bn, BengaliAI
-Whisper/Regional, SeamlessM4T. Best: \textbf{BengaliAI Regional}
-(46.94\% WER, 24.29\% CER, 0.273 BLEU). Finding: dialect speech
-defeats even the best open Bangla models.
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=7mm]
 
-\item[\textbf{Phase 3 — Large Multimodal LLM Benchmark}] \textit{Demo: 9 Apr 2026.}
-Qwen2-Audio, Qwen3-ASR-1.7B, Voxtral-Mini, Phi-4 Multimodal,
-Qwen2.5-Omni (1.7B--7B). None matched BengaliAI Regional;
-closest trailed by $>$50 pp WER. Conclusion: \textit{specialisation
-beats scale for Bangla dialect ASR}.
+%%-------------------------------------------------------------------
+%% MAIN COLUMN  (centred on x=0)
+%%-------------------------------------------------------------------
+\node[nlp]  (m1)  {M1 \quad Speech-to-Text\\
+                   {\normalfont\scriptsize Bangla / Banglish / Dialect speech}};
+\node[nlp,  below=of m1]  (m2)  {M2 \quad Text Processing \& Normalisation\\
+                   {\normalfont\scriptsize Spelling, Banglish norm., filler removal}};
+\node[nlp,  below=of m2]  (m3)  {M3 \quad Information Extraction (NER)\\
+                   {\normalfont\scriptsize Symptoms, duration, severity, meds, age}};
+\node[nlp,  below=of m3]  (m4)  {M4 \quad Initial Clinical Summary\\
+                   {\normalfont\scriptsize Chief complaint in human-readable form}};
+\node[emg,  below=of m4]  (m5)  {M5 \quad Emergency Detection\\
+                   {\normalfont\scriptsize Chest pain / stroke / severe dyspnoea?}};
+\node[nlp,  below=of m5]  (m6)  {M6 \quad Missing Information Analysis\\
+                   {\normalfont\scriptsize Completeness checklist per symptom category}};
+\node[lop,  below=of m6]  (m7)  {M7 \quad Follow-up Question Generation\\
+                   {\normalfont\scriptsize Priority-ranked Bangla or English questions}};
+\node[lop,  below=of m7]  (m8)  {M8 \quad Response Processing \& Profile Update\\
+                   {\normalfont\scriptsize Patient answers re-enter M2--M3; gaps filled}};
+\node[dec,  below=9mm of m8]   (m9)  {M9: Profile Complete?};
+\node[nlp,  below=9mm of m9]  (m10) {M10 \quad Risk Assessment\\
+                   {\normalfont\scriptsize Low / Medium / High / Critical tier}};
+\node[nlp,  below=of m10] (m11) {M11 \quad Explainable AI (XAI)\\
+                   {\normalfont\scriptsize SHAP/LIME plain-language risk drivers}};
+\node[nlp,  below=of m11] (m12) {M12 \quad Clinical Report Generation\\
+                   {\normalfont\scriptsize 8-section pre-screening report; PDF + dashboard}};
+\node[dbs,  below=9mm of m12]  (m13) {M13 \quad EHR Database\\
+                   {\normalfont\scriptsize HIPAA/PDPA-compliant; encrypted storage}};
+\node[doc,  below=9mm of m13]  (m14) {M14 \quad Doctor Dashboard\\
+                   {\normalfont\scriptsize Report, risk, XAI; annotations \& overrides}};
+\node[doc,  below=of m14] (m15) {M15 \quad Feedback \& Continuous Learning\\
+                   {\normalfont\scriptsize Doctor corrections retrain M3, M7, M10}};
 
-\item[\textbf{Phase 4 — Fine-Tuning Research (in progress)}] \textit{Demo: 16 Apr 2026.}
-LoRA fine-tuning methodology for Qwen3-ASR-1.7B on the dialect corpus.
-Adapter on speech encoder only; decoder frozen. No training run yet —
-this is a methodology study for execution in CSE499B.
+%%-------------------------------------------------------------------
+%% EMERGENCY EXIT  (right of M5)
+%%-------------------------------------------------------------------
+\node[alrtbox, right=30mm of m5] (alert)
+  {EMERGENCY ALERT\\
+   {\normalfont\scriptsize Immediate escalation to medical staff}};
 
-\item[\textbf{Phase 5 — Chatbot Output Study (selected)}] \textit{Execution: next demo.}
-ChatGPT, DeepSeek, Qwen, Perplexity prompted with simulated patient
-utterances. Outputs compared on schema consistency, field completeness,
-code-mixed handling, and source faithfulness. Result will inform
-Module~12 report schema.
+%%-------------------------------------------------------------------
+%% MAIN DOWNWARD ARROWS
+%%-------------------------------------------------------------------
+\draw[ga] (m1)--(m2);
+\draw[ga] (m2)--(m3);
+\draw[ga] (m3)--(m4);
+\draw[ga] (m4)--(m5);
+\draw[ga] (m5)--(m6);
+\draw[ga] (m6)--(m7);
+\draw[ga] (m7)--(m8);
+\draw[ga] (m8)--(m9);
+\draw[ga] (m9.south)--node[lbl,right=1mm]{Yes / Complete}(m10.north);
+\draw[ga] (m10)--(m11);
+\draw[ga] (m11)--(m12);
+\draw[ga] (m12)--(m13.north);
+\draw[ga] (m13.south)--(m14.north);
+\draw[ga] (m14)--(m15);
+
+%%-------------------------------------------------------------------
+%% EMERGENCY ARROW  (M5 → alert box)
+%%-------------------------------------------------------------------
+\draw[ra] (m5.east) -- node[lbl,above=1mm]{Critical} (alert.west);
+
+%%-------------------------------------------------------------------
+%% LOOP BACK: M9 "No" → left → up → M7 west
+%%-------------------------------------------------------------------
+\draw[oa]
+  (m9.west)
+  -- ++(-22mm,0)  coordinate (L1)
+  node[lbl,above=1mm,pos=0.5]{No / Incomplete}
+  |- ($(m7.west)+(-22mm,0)$) coordinate (L2)
+  -- (m7.west);
+
+%%-------------------------------------------------------------------
+%% FEEDBACK ARROW: M15 → left → up → M2 west
+%%-------------------------------------------------------------------
+\draw[oa,color=cgreen]
+  (m15.west)
+  -- ++(-30mm,0) coordinate (F1)
+  |- ($(m2.west)+(-30mm,0)$) coordinate (F2)
+  -- node[lbl,left=1mm,pos=0.5]{Retrain} (m2.west);
+
+%%-------------------------------------------------------------------
+%% LEGEND  (below figure)
+%%-------------------------------------------------------------------
+\node[below=14mm of m15, xshift=0mm] (leg) {%
+\begin{tikzpicture}
+  \node[nlp, text width=26mm,minimum height=7mm,
+        font=\scriptsize\bfseries\color{cblue}] at (0,0)   {Core NLP};
+  \node[emg, text width=26mm,minimum height=7mm,
+        font=\scriptsize\bfseries\color{cred}]  at (30mm,0){Emergency};
+  \node[lop, text width=26mm,minimum height=7mm,
+        font=\scriptsize\bfseries\color{corange}] at (60mm,0){Follow-up Loop};
+  \node[doc, text width=26mm,minimum height=7mm,
+        font=\scriptsize\bfseries\color{cgreen}] at (90mm,0){Doctor Side};
+  \node[dbs, text width=26mm,minimum height=7mm,
+        font=\scriptsize\bfseries\color{cgray}]  at (120mm,0){Database};
+\end{tikzpicture}};
+
+\end{tikzpicture}
+\caption{Complete 15-module pipeline. Flow is strictly top-to-bottom.
+  Orange loop (M7--M9) repeats until the patient profile is complete.
+  Red path (M5) escalates emergencies immediately. Green arrow (M15)
+  feeds doctor corrections back to model retraining.}
+\label{fig:pipeline}
+\end{figure}
+
+% ===================================================================
+\subsection{Module Descriptions}
+% ===================================================================
+
+\begin{description}[leftmargin=0pt,labelwidth=0pt,style=nextline,
+                    itemsep=2pt,parsep=0pt]
+
+\item[\textbf{M1 --- Speech-to-Text.}]
+Accepts Bangla, Banglish, and regional dialect speech (Dhakaiya,
+Barishali, Sylheti). VAD-segments audio into 10--15\,s clips.
+Best benchmark: \textit{BengaliAI Regional} (46.94\% WER); target
+after CSE499B LoRA fine-tuning: $<$20\% WER.
+
+\item[\textbf{M2 --- Text Processing \& Normalisation.}]
+Spelling correction, Banglish normalisation, filler-word removal,
+punctuation restoration, sentence-boundary detection. Bilingual
+Bangla--English throughout.
+
+\item[\textbf{M3 --- Information Extraction (NER).}]
+BanglaBERT token classifier labels: \textit{symptom, body site,
+duration, severity, frequency, age, comorbidity, medication}.
+Temporal expressions normalised to standard intervals.
+
+\item[\textbf{M4 --- Initial Clinical Summary.}]
+Concise human-readable chief-complaint summary used downstream and
+displayed on the dashboard.
+Example: \textit{``Fever + dry cough for 3 days; mild fatigue; no chest pain.''}
+
+\item[\textbf{M5 --- Emergency Detection} \textcolor{cred}{(new).}]
+Rule-based critical-symptom checker + AI classifier.
+Red flags: chest pain, stroke signs, severe dyspnoea, loss of
+consciousness, acute trauma. Escalates immediately; pipeline continues
+in parallel for non-critical cases.
+
+\item[\textbf{M6 --- Missing Information Analysis} \textcolor{cred}{(new).}]
+Compares extracted entities against a per-symptom clinical checklist
+(\CheckedBox\ Fever detected; \XBox\ Duration missing; \XBox\
+Temperature not provided) and outputs a structured gap report.
+
+\item[\textbf{M7 --- Follow-up Question Generation} \textcolor{corange}{(new).}]
+Generates priority-ranked questions in Bangla or English.
+Example: \textit{``Apnar jwor ki matro kal theke?''} / \textit{``When did the
+fever start?''} Already-answered items are never repeated.
+
+\item[\textbf{M8 --- Response Processing \& Profile Update} \textcolor{corange}{(new).}]
+Patient answers re-enter M2--M3. Extracted entities merge into the
+profile with conflict resolution; filled gaps are marked.
+
+\item[\textbf{M9 --- Case Completion Check} \textcolor{corange}{(new).}]
+Scores profile completeness against a configurable threshold.
+If incomplete $\to$ loops to M7; if complete (or max turns reached)
+$\to$ proceeds to M10.
+
+\item[\textbf{M10 --- Risk Assessment} \textcolor{cred}{(new).}]
+Assigns \textbf{Low / Medium / High / Critical} using a clinical rule
+engine weighted by age, comorbidities, severity, and duration.
+Integrates M5 output.
+
+\item[\textbf{M11 --- Explainable AI (XAI)} \textcolor{cred}{(new).}]
+SHAP/LIME attribution converted to plain language.
+Example: \textit{``High risk: fever $>$5 days + dyspnoea + age $>$65.''}
+Displayed alongside every risk classification.
+
+\item[\textbf{M12 --- Clinical Report Generation} \textcolor{cred}{(new).}]
+8-section pre-screening report: Patient Profile, Chief Complaint,
+Symptoms, Emergency Flags, Q\&A Log, Risk + XAI, Condition
+Categories, Next Steps. Exported as PDF and to the dashboard.
+
+\item[\textbf{M13 --- EHR Database.}]
+HIPAA/PDPA-compliant PostgreSQL with encryption at rest and in
+transit. Full audit logging; efficient retrieval by patient ID or date.
+
+\item[\textbf{M14 --- Doctor Dashboard} (extended from original).]
+Displays report, risk tier, emergency flags, and XAI explanation.
+Annotation and override of any field (all changes versioned); real-time
+alerts for High/Critical cases.
+
+\item[\textbf{M15 --- Feedback \& Continuous Learning} \textcolor{cgreen}{(new).}]
+Doctors rate reports, correct extractions, flag missed items, annotate
+risk disagreements. Periodic retraining of M3, M7, M10 with regression
+testing before deployment.
 
 \end{description}
 
-% ====================================================================
+% ===================================================================
+\section{System Flowchart --- Patient Journey}
+% ===================================================================
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=6mm]
+
+%%-------------------------------------------------------------------
+%% STYLES LOCAL TO THIS FIGURE
+%%-------------------------------------------------------------------
+\tikzset{
+  P/.style ={rectangle,rounded corners=3pt,draw=cblue,fill=cbluelt,
+             line width=0.7pt,text width=62mm,minimum height=9mm,
+             align=center,font=\small\bfseries\color{cblue}},
+  E/.style ={rectangle,rounded corners=3pt,draw=cred,fill=credlt,
+             line width=0.9pt,text width=62mm,minimum height=9mm,
+             align=center,font=\small\bfseries\color{cred}},
+  L/.style ={rectangle,rounded corners=3pt,draw=corange,fill=corangelt,
+             line width=0.7pt,text width=62mm,minimum height=9mm,
+             align=center,font=\small\bfseries\color{corange}},
+  G/.style ={rectangle,rounded corners=3pt,draw=cgreen,fill=cgreenlt,
+             line width=0.7pt,text width=62mm,minimum height=9mm,
+             align=center,font=\small\bfseries\color{cgreen}},
+  T/.style ={rectangle,rounded corners=8pt,draw=dark,fill=gray!17,
+             line width=0.8pt,text width=62mm,minimum height=9mm,
+             align=center,font=\small\bfseries},
+  D/.style ={diamond,draw=corange,fill=corangelt,line width=0.9pt,
+             aspect=3.4,text width=40mm,minimum height=9mm,
+             align=center,font=\small\bfseries\color{corange}},
+  AE/.style={rectangle,rounded corners=3pt,draw=cred,fill=credlt,
+             line width=1pt,text width=55mm,minimum height=9mm,
+             align=center,font=\small\bfseries\color{cred}},
+  fa/.style={-{Stealth[length=5pt]},line width=0.8pt,color=dark},
+  fra/.style={-{Stealth[length=5pt]},line width=1.0pt,color=cred},
+  foa/.style={-{Stealth[length=5pt]},line width=0.8pt,color=corange},
+  flbl/.style={font=\scriptsize\bfseries,fill=white,inner sep=1pt,
+               rounded corners=2pt}
+}
+
+%%-------------------------------------------------------------------
+%% NODES  (main column, centred)
+%%-------------------------------------------------------------------
+\node[T] (N01) {START: Patient speaks in Bangla / Banglish};
+\node[P,below=of N01] (N02) {M1 --- Speech-to-Text (ASR)};
+\node[P,below=of N02] (N03) {M2 --- Text Processing \& Normalisation};
+\node[P,below=of N03] (N04) {M3 --- Information Extraction (NER)};
+\node[P,below=of N04] (N05) {M4 --- Initial Clinical Summary};
+
+%% Emergency decision
+\node[D,below=7mm of N05] (D01) {M5: Emergency\\Detected?};
+\node[AE,right=28mm of D01] (N06) {ALERT: Escalate to\\Medical Staff Immediately};
+
+\node[P,below=7mm of D01] (N07) {M6 --- Missing Information Analysis};
+\node[L,below=of N07] (N08) {M7 --- Generate Follow-up Questions\\(Bangla / English)};
+\node[L,below=of N08] (N09) {Patient Answers Questions Verbally};
+\node[L,below=of N09] (N10) {M8 --- Process Response \& Update Profile};
+
+%% Completion decision
+\node[D,below=7mm of N10] (D02) {M9: Profile\\Complete?};
+
+\node[P,below=7mm of D02] (N11) {M10 --- Risk Assessment (Low/Med/High/Critical)};
+\node[P,below=of N11] (N12) {M11 --- Explainable AI: Risk Driver Report};
+\node[P,below=of N12] (N13) {M12 --- Generate Clinical Pre-Screening Report};
+\node[G,below=of N13] (N14) {M13 --- Store in EHR Database (Encrypted)};
+\node[G,below=of N14] (N15) {M14 --- Doctor Reviews on Dashboard};
+\node[G,below=of N15] (N16) {M15 --- Doctor Feedback Collected};
+\node[T,below=of N16] (N17) {END: Consultation Begins};
+
+%%-------------------------------------------------------------------
+%% ARROWS  (main flow)
+%%-------------------------------------------------------------------
+\draw[fa] (N01)--(N02);
+\draw[fa] (N02)--(N03);
+\draw[fa] (N03)--(N04);
+\draw[fa] (N04)--(N05);
+\draw[fa] (N05)--(D01);
+\draw[fa] (D01.south)--node[flbl,right=1mm]{No}(N07);
+\draw[fa] (N07)--(N08);
+\draw[fa] (N08)--(N09);
+\draw[fa] (N09)--(N10);
+\draw[fa] (N10)--(D02);
+\draw[fa] (D02.south)--node[flbl,right=1mm]{Yes / Complete}(N11);
+\draw[fa] (N11)--(N12);
+\draw[fa] (N12)--(N13);
+\draw[fa] (N13)--(N14);
+\draw[fa] (N14)--(N15);
+\draw[fa] (N15)--(N16);
+\draw[fa] (N16)--(N17);
+
+%%-------------------------------------------------------------------
+%% EMERGENCY ARROW  (D01 east → alert box)
+%%-------------------------------------------------------------------
+\draw[fra] (D01.east)--node[flbl,above]{Yes}(N06.west);
+%% alert also continues downward (staff alerted; pipeline continues)
+\draw[fra,dashed] (N06.south)--++(0,-5mm)
+  -| node[flbl,pos=0.2,below]{\scriptsize staff alerted; pipeline continues} (N07.east);
+
+%%-------------------------------------------------------------------
+%% LOOP BACK: D02 "No / Incomplete" → right → up → N08
+%%-------------------------------------------------------------------
+\draw[foa]
+  (D02.east)
+  --++(26mm,0) coordinate (RL)
+  node[flbl,above=1mm,pos=0.5]{No / Incomplete}
+  |- ($(N08.east)+(26mm,0)$)
+  --(N08.east);
+
+%%-------------------------------------------------------------------
+%% LEGEND
+%%-------------------------------------------------------------------
+\node[below=8mm of N17] (LEG) {%
+\begin{tikzpicture}
+  \node[P,text width=24mm,minimum height=7mm,
+        font=\scriptsize\bfseries\color{cblue}] at (0,0)     {NLP / ASR};
+  \node[E,text width=24mm,minimum height=7mm,
+        font=\scriptsize\bfseries\color{cred}]  at (28mm,0)  {Emergency};
+  \node[L,text width=24mm,minimum height=7mm,
+        font=\scriptsize\bfseries\color{corange}] at (56mm,0){Follow-up Loop};
+  \node[G,text width=24mm,minimum height=7mm,
+        font=\scriptsize\bfseries\color{cgreen}] at (84mm,0) {Doctor Side};
+\end{tikzpicture}};
+
+\end{tikzpicture}
+\caption{Patient journey flowchart across all 15 modules.
+  Flow is top-to-bottom. The orange loop (M7--M9) iterates until the
+  clinical profile is complete. The red path (M5) alerts staff
+  immediately but allows the pipeline to continue in parallel.}
+\label{fig:flowchart}
+\end{figure}
+
+% ===================================================================
+\section{Software Components}
+% ===================================================================
+
+\footnotesize\setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\linewidth}{>{\bfseries}p{2.8cm} p{3.4cm} X}
+\toprule
+Tool & Function & Rationale \\
+\midrule
+Python 3.10          & Implementation language           & Standard ML/NLP ecosystem \\
+PyTorch 2.x          & Deep-learning framework           & Native support across all benchmarked ASR models \\
+HF Transformers      & Model loading \& inference        & Unified API: Whisper, Wav2Vec2, MMS, Qwen-Audio, Phi-4 \\
+HF PEFT/Accelerate   & LoRA fine-tuning (CSE499B)        & Parameter-efficient fine-tuning of Qwen3-ASR-1.7B \\
+BanglaBERT           & Medical NER --- Module~3          & Pre-trained on large Bangla corpus; best Bangla NLP accuracy \\
+WhisperX             & VAD segmentation --- Module~1     & Handles audio $>$30\,s with forced alignment \\
+LIME / SHAP          & XAI attribution --- Module~11     & Standard explainability libraries \\
+FastAPI              & Backend REST/WebSocket            & Async; low latency for real-time follow-up dialogue loop \\
+PostgreSQL           & EHR storage --- Module~13         & Encryption-at-rest; HIPAA-ready \\
+React / Next.js      & Doctor dashboard --- Module~14    & Low-bandwidth; role-based access control \\
+Flutter / PWA        & Patient kiosk --- Module~1        & Single record button; Bangla voice prompts \\
+MLflow               & Feedback \& retraining --- M15    & Experiment tracking; model versioning \\
+\texttt{jiwer}       & WER / CER / BLEU evaluation       & Standard ASR metric library \\
+Google Colab (T4/A100) & GPU compute                    & Free tier for inference benchmarks \\
+\bottomrule
+\end{tabularx}
+\normalsize
+
+% ===================================================================
+\section{CSE499A Implementation Phases}
+% ===================================================================
+
+\begin{description}[leftmargin=0pt,style=nextline,itemsep=3pt,parsep=0pt]
+
+\item[\textbf{Phase 1 --- Audio Collection \& Preprocessing}]
+\textit{Demo: 12 March 2026.}
+Multi-dialect corpus assembled (Dhakaiya, Barishali, Sylheti, Normal,
+Indian Bangla); logged in \texttt{dataset\_log.csv}.
+Preprocessed to 16\,kHz mono PCM; VAD-segmented by WhisperX.
+Final: $\approx$4.7\,h, 10 sources, $\sim$1{,}100 clips.
+
+\item[\textbf{Phase 2 --- Baseline ASR Benchmark (12 models)}]
+\textit{Demo: 2 April 2026.}
+Whisper (S/M/L/Turbo), Wav2Vec2 variants, MMS, Vakyansh-Bn, BengaliAI
+Whisper/Regional, SeamlessM4T.
+Best result: \textbf{BengaliAI Regional} --- 46.94\% WER, 24.29\% CER,
+0.273 BLEU. Key finding: dialect speech defeats even the best open
+Bangla ASR models.
+
+\item[\textbf{Phase 3 --- Large Multimodal LLM Benchmark}]
+\textit{Demo: 9 April 2026.}
+Qwen2-Audio, Qwen3-ASR-1.7B, Voxtral-Mini, Phi-4 Multimodal,
+Qwen2.5-Omni (1.7B--7B range). None matched BengaliAI Regional;
+closest trailed by $>$50 percentage points WER.
+Conclusion: \textit{specialisation beats scale for Bangla dialect ASR}.
+
+\item[\textbf{Phase 4 --- Fine-Tuning Methodology Study}]
+\textit{Demo: 16 April 2026.}
+LoRA adapter plan for Qwen3-ASR-1.7B: adapter on speech encoder;
+decoder weights frozen. No training run yet --- this is a methodology
+study; training is scheduled for CSE499B.
+
+\item[\textbf{Phase 5 --- Comparative Chatbot Output Study}]
+\textit{Selected; execution at next demo.}
+ChatGPT, DeepSeek, Qwen, Perplexity prompted with simulated patient
+utterances. Outputs scored on schema consistency, field completeness,
+code-mixed handling. Results will inform the Module~12 report schema.
+
+\end{description}
+
+% ===================================================================
 \section{Conclusion}
-% ====================================================================
+% ===================================================================
 
-The updated design addresses the three main limitations of the original
-five-stage pipeline: (i)~the adaptive follow-up loop (M6--M9) ensures
-clinical information completeness; (ii)~Module~5 provides an explicit
-emergency escalation pathway absent from the original design; and
-(iii)~Modules~10--11 and~15 add risk stratification, explainability, and
-continuous improvement. The empirical finding from Phases~2 and~3 ---
-that specialisation beats scale for Bangla dialect ASR --- directly
-motivates the CSE499B priority: LoRA fine-tuning of Qwen3-ASR-1.7B.
-Once ASR reliability is demonstrated, the application layer (Modules
-3--15) will be built iteratively.
+The updated 15-module design addresses every limitation of the original
+five-stage pipeline. The adaptive follow-up loop (Modules~6--9) ensures
+complete clinical profiles before assessment. Module~5 adds an
+emergency escalation pathway that was entirely absent before.
+Modules~10--11 introduce risk stratification and transparency through
+explainable AI. Module~15 closes the quality loop by feeding physician
+corrections back into model retraining. The CSE499B priority is LoRA
+fine-tuning of Qwen3-ASR-1.7B to reduce dialect WER to $<$20\%;
+once the ASR foundation is reliable, Modules~3--15 will be built
+and integrated iteratively.
 
-% ====================================================================
+% ===================================================================
 \begin{thebibliography}{99}\small
-\bibitem{w} A.~Radford \emph{et al.}, ``Robust Speech Recognition via Large-Scale Weak Supervision,'' \emph{ICML 2023}. \url{https://arxiv.org/abs/2212.04356}
-\bibitem{b} A.~Baevski \emph{et al.}, ``wav2vec 2.0,'' \emph{NeurIPS 2020}.
-\bibitem{q} Y.~Chu \emph{et al.}, ``Qwen2-Audio Technical Report,'' \emph{arXiv:2407.10759}, 2024.
-\bibitem{t} T.~Wolf \emph{et al.}, ``Transformers,'' \emph{EMNLP 2020}. \url{https://github.com/huggingface/transformers}
-\bibitem{l} E.~J.~Hu \emph{et al.}, ``LoRA,'' \emph{ICLR 2022}. \url{https://arxiv.org/abs/2106.09685}
+\bibitem{w}  A.~Radford \emph{et al.}, ``Robust Speech Recognition via Large-Scale Weak Supervision,'' \emph{ICML 2023}. \url{https://arxiv.org/abs/2212.04356}
+\bibitem{b}  A.~Baevski \emph{et al.}, ``wav2vec 2.0,'' \emph{NeurIPS 2020}.
+\bibitem{q}  Y.~Chu \emph{et al.}, ``Qwen2-Audio Technical Report,'' \emph{arXiv:2407.10759}, 2024.
+\bibitem{t}  T.~Wolf \emph{et al.}, ``Transformers,'' \emph{EMNLP 2020}. \url{https://github.com/huggingface/transformers}
+\bibitem{l}  E.~J.~Hu \emph{et al.}, ``LoRA,'' \emph{ICLR 2022}. \url{https://arxiv.org/abs/2106.09685}
 \bibitem{wx} M.~Bain \emph{et al.}, ``WhisperX,'' \emph{INTERSPEECH 2023}. \url{https://arxiv.org/abs/2303.00747}
 \bibitem{bb} A.~Bhattacharjee \emph{et al.}, ``BanglaBERT,'' \emph{NAACL 2022 Findings}. \url{https://github.com/csebuetnlp/banglabert}
-\bibitem{sh} S.~Lundberg \& S.~Lee, ``SHAP,'' \emph{NeurIPS 2017}. \url{https://arxiv.org/abs/1705.07874}
-\bibitem{li} M.~Ribeiro \emph{et al.}, ``LIME,'' \emph{KDD 2016}. \url{https://arxiv.org/abs/1602.04938}
+\bibitem{sh} S.~Lundberg \& S.-I.~Lee, ``SHAP,'' \emph{NeurIPS 2017}. \url{https://arxiv.org/abs/1705.07874}
+\bibitem{li} M.~T.~Ribeiro \emph{et al.}, ``LIME,'' \emph{KDD 2016}. \url{https://arxiv.org/abs/1602.04938}
 \bibitem{oo} F.~R.~Rakib \emph{et al.}, ``OOD-Speech,'' \emph{INTERSPEECH 2023}. \url{https://arxiv.org/abs/2305.09688}
 \end{thebibliography}
 
