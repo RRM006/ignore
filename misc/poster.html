@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:'NotoBengali';src:url('assets/NotoSansBengali-Regular.ttf');}
+@page{ size:1189mm 841mm; margin:0; }
+*{ margin:0; padding:0; box-sizing:border-box; }
+:root{ --navy:#0B1E4B; --navy2:#153A7E; --teal:#0FA47F; --teal-d:#0B7D60; --cyan:#18B4E6;
+  --red:#D23B36; --amber:#C07A22; --ink:#0B1E4B; --slate:#33456A; --muted:#7C8CA6;
+  --bg:#EEF3F9; --card:#FFFFFF; --line:#DCE4EE; }
+html,body{ font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased; }
+.poster{ width:1189mm; height:841mm; background:radial-gradient(1200px 700px at 12% 0%, #F3F7FC 0%, var(--bg) 55%);
+  padding:13mm 15mm 10mm 15mm; display:flex; flex-direction:column; gap:7mm; }
+.bn{ font-family:'NotoBengali','Segoe UI',sans-serif; }
+.header,.gallery,.tech,.footer{ flex:0 0 auto; }
+
+/* HEADER */
+.header{ position:relative; background:linear-gradient(120deg,#0A1B44,#122E6C 58%,#164a8f); border-radius:8mm;
+  padding:7mm 10mm; color:#fff; overflow:hidden; box-shadow:0 3mm 8mm rgba(11,30,75,.18); }
+.header::after{ content:""; position:absolute; inset:0; background:radial-gradient(420px 220px at 93% 25%,rgba(24,180,230,.22),transparent 70%),
+  repeating-linear-gradient(90deg,rgba(255,255,255,.045) 0 2px,transparent 2px 62px); }
+.header .row{ position:relative; display:flex; align-items:center; gap:10mm; }
+.badge{ flex:0 0 auto; width:58mm; height:58mm; background:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 2mm 5mm rgba(0,0,0,.22); }
+.badge img{ width:50mm; height:50mm; object-fit:contain; }
+.htext{ flex:1 1 auto; }
+.eyebrow{ font-size:18pt; letter-spacing:.2em; text-transform:uppercase; color:#8fd4f2; font-weight:700; margin-bottom:2.5mm; }
+.title{ font-size:50pt; line-height:1.03; font-weight:800; letter-spacing:-.01em; }
+.subtitle{ font-size:26pt; line-height:1.12; font-weight:500; color:#d7e6fb; margin-top:3mm; }
+.meta{ position:relative; margin-top:5mm; display:flex; gap:8mm; flex-wrap:wrap; font-size:20pt; color:#eaf2ff; align-items:center; }
+.meta .who{ font-weight:700; } .meta .chip-id{ color:#9fc0ea; font-weight:400; } .meta .sup{ color:#c3daf7; }
+
+/* SECTION CARD */
+.card{ background:var(--card); border:1px solid var(--line); border-radius:6mm; box-shadow:0 1.5mm 4mm rgba(11,30,75,.06); overflow:hidden; display:flex; flex-direction:column; }
+.card.grow{ flex:1 1 auto; }
+.chead{ display:flex; align-items:center; gap:4mm; padding:3.5mm 5mm; color:#fff; background:linear-gradient(90deg,var(--teal-d),var(--teal)); }
+.chead .n{ width:15mm; height:15mm; border-radius:2.5mm; background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; font-size:28pt; font-weight:800; }
+.chead h3{ font-size:36pt; font-weight:800; line-height:1.0; }
+.card.navy .chead{ background:linear-gradient(90deg,#12306E,#1c53a8); }
+.cbody{ padding:4mm 5mm 5mm 5mm; display:flex; flex-direction:column; gap:3mm; flex:1 1 auto; }
+.cbody ul{ list-style:none; display:flex; flex-direction:column; gap:2.6mm; }
+.cbody li{ position:relative; padding-left:7.5mm; font-size:24pt; line-height:1.22; color:var(--slate); }
+.cbody li::before{ content:""; position:absolute; left:0; top:3mm; width:4mm; height:4mm; border-radius:1mm; background:var(--teal); }
+.card.navy .cbody li::before{ background:var(--navy2); }
+.cbody p{ font-size:24pt; line-height:1.22; color:var(--slate); }
+.cbody b{ color:var(--ink); }
+.cap{ font-size:16pt; color:var(--muted); line-height:1.18; }
+
+/* TOP ROW: 3 columns */
+.top{ flex:0 0 auto; display:grid; grid-template-columns:31% 32% 1fr; gap:7mm; }
+.col{ display:flex; flex-direction:column; gap:7mm; }
+
+/* METHODOLOGY vertical pipeline */
+.pipe{ background:linear-gradient(160deg,#081733,#0c2350 60%,#0a1b3f); border-radius:0 0 6mm 6mm; padding:5mm 5mm 5mm; display:flex; flex-direction:column; gap:2.4mm; flex:1 1 auto; justify-content:space-between; }
+.callout{ flex:1 1 auto; background:#F2FBF8; border:1.4px solid #CDEEE2; border-left:6mm solid var(--teal); border-radius:5mm; padding:4mm 5mm; display:flex; flex-direction:column; gap:2.6mm; box-shadow:0 1.5mm 4mm rgba(11,30,75,.06); }
+.ctitle{ font-size:22pt; font-weight:800; color:var(--teal-d); letter-spacing:.03em; }
+.clist{ list-style:none; display:flex; flex-direction:column; gap:2.6mm; }
+.clist li{ position:relative; padding-left:8mm; font-size:20pt; line-height:1.18; color:var(--slate); }
+.clist li::before{ content:"✓"; position:absolute; left:0; top:0; color:var(--teal); font-weight:800; font-size:20pt; }
+.pstage{ position:relative; display:flex; align-items:center; gap:4mm; background:rgba(255,255,255,.05); border:1.2px solid rgba(120,200,235,.34); border-radius:3.5mm; padding:2.6mm 3.5mm; }
+.pstage .num{ width:11mm; height:11mm; flex:0 0 auto; border-radius:50%; background:radial-gradient(circle at 35% 30%,#23d3a6,#0c8f6e); color:#04231b; font-weight:800; font-size:17pt; display:flex; align-items:center; justify-content:center; box-shadow:0 0 7mm rgba(21,211,166,.5); }
+.pstage.cy .num{ background:radial-gradient(circle at 35% 30%,#63d6f5,#1592c6); color:#04222c; box-shadow:0 0 7mm rgba(24,180,230,.5); }
+.pstage h4{ font-size:19pt; font-weight:800; color:#fff; }
+.pstage p{ font-size:14.5pt; color:#cfe6f4; line-height:1.12; }
+.pstage .mods{ margin-left:auto; font-size:13pt; color:#7fe6c9; font-weight:700; white-space:nowrap; }
+.pnote{ font-size:14.5pt; color:#bfe0d6; text-align:center; margin-top:1mm; }
+
+/* RESULTS */
+.rfig{ border:1px solid var(--line); border-radius:3mm; overflow:hidden; background:#fff; }
+.rfig img{ width:100%; display:block; }
+.stats{ display:flex; gap:3.5mm; margin-top:auto; }
+.stats div{ flex:1; background:#EAF1FB; border:1px solid #D6E3F5; border-radius:3mm; padding:2.6mm 2mm; text-align:center; }
+.stats b{ display:block; font-size:31pt; font-weight:800; color:#12306E; line-height:1; }
+.stats span{ font-size:14pt; color:#5A6B87; }
+
+/* GALLERY (System Features) */
+.gallery .chead{ background:linear-gradient(90deg,#12306E,#1c53a8); }
+.gallery{ background:var(--card); border:1px solid var(--line); border-radius:6mm; box-shadow:0 1.5mm 4mm rgba(11,30,75,.06); overflow:hidden; display:flex; flex-direction:column; }
+.grid{ padding:4mm 5mm 5mm; display:grid; grid-template-columns:repeat(3,1fr); gap:5mm; flex:1 1 auto; }
+.shot{ display:flex; flex-direction:column; border:1px solid #E3E9F2; border-radius:3mm; overflow:hidden; background:#fff; }
+.bar{ height:6mm; background:#EEF3FA; border-bottom:1px solid #E3E9F2; display:flex; align-items:center; gap:2mm; padding-left:3mm; }
+.bar i{ width:2.4mm; height:2.4mm; border-radius:50%; display:inline-block; }
+.bar .r{ background:#f0685f; } .bar .y{ background:#f2c14e; } .bar .g{ background:#57c08b; }
+.imgwrap{ height:150mm; display:flex; align-items:center; justify-content:center; background:#F7FAFD; padding:2mm; }
+.imgwrap img{ max-width:100%; max-height:100%; object-fit:contain; box-shadow:0 0 0 1px rgba(0,0,0,.04); }
+.scap{ padding:2.6mm 3.5mm; font-size:16.5pt; color:var(--ink); font-weight:600; line-height:1.14; border-top:1px solid #EEF2F7; }
+.scap b{ color:var(--teal-d); }
+
+/* TECH STACK */
+.tech{ background:#fff; border:1px solid var(--line); border-radius:6mm; box-shadow:0 1.5mm 4mm rgba(11,30,75,.06); overflow:hidden; }
+.tech .chead{ background:linear-gradient(90deg,var(--teal-d),var(--teal)); }
+.tgrid{ padding:4mm 5mm; display:grid; grid-template-columns:repeat(5,1fr); gap:5mm; }
+.tgrp b{ display:block; font-size:16pt; font-weight:800; color:var(--navy2); text-transform:uppercase; letter-spacing:.04em; margin-bottom:2.4mm; }
+.tgrp .chips{ display:flex; flex-wrap:wrap; gap:2.4mm; }
+.tgrp span{ font-size:16.5pt; font-weight:600; color:#22406e; background:#EEF3FA; border:1px solid #DBE5F2; border-radius:16mm; padding:1.8mm 3.6mm; }
+
+/* FOOTER */
+.footer{ display:flex; align-items:center; gap:8mm; background:linear-gradient(150deg,#0b1f4b,#12306e); color:#fff; border-radius:6mm; padding:4mm 8mm; }
+.footer b{ font-size:21pt; } .footer span{ font-size:16pt; color:#bcd3f2; margin-left:auto; text-align:right; line-height:1.2; }
+</style></head>
+<body>
+<div class="poster">
+
+  <!-- HEADER -->
+  <div class="header"><div class="row">
+    <div class="badge"><img src="assets/nsu_logo.png" alt="NSU"></div>
+    <div class="htext">
+      <div class="eyebrow">North South University&nbsp; ·&nbsp; Department of Electrical &amp; Computer Engineering (ECE)&nbsp; ·&nbsp; CSE499 Capstone</div>
+      <div class="title">A Voice-Based AI Framework for Medical Pre-Screening of Bangla &amp; Regional Bangladeshi Speech</div>
+      <div class="subtitle">with Intelligent Symptom Capture, Risk Assessment, Clinical Documentation &amp; EHR Integration</div>
+      <div class="meta">
+        <span class="who">Rafiur Rahman Mashrafi <span class="chip-id">(2221971042)</span></span>
+        <span class="who">M.&nbsp;G. Rabbi Hossen <span class="chip-id">(2222516042)</span></span>
+        <span class="who">Israt Zaman Srity <span class="chip-id">(2211084042)</span></span>
+        <span class="sup">&nbsp;|&nbsp; Supervisor: <b>Dr. Mohammad Ashrafuzzaman Khan (AzK)</b></span>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- TOP ROW : 1 Introduction / 2 Objective | 3 Methodology | 4 Results -->
+  <div class="top">
+    <div class="col">
+      <div class="card">
+        <div class="chead"><div class="n">1</div><h3>Introduction</h3></div>
+        <div class="cbody">
+          <ul>
+            <li>Patients describe symptoms in <b>Bangla, Banglish &amp; regional dialects</b>; before consultation, key details are missed.</li>
+            <li>Dialect variation, code-switching &amp; clinic noise make <b>reliable speech capture hard</b>.</li>
+            <li>We build a <b>voice-first AI pre-screening</b> system that captures symptoms before — and never replaces — the doctor.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card">
+        <div class="chead"><div class="n">2</div><h3>Objective</h3></div>
+        <div class="cbody">
+          <ul>
+            <li>Let patients describe symptoms <b>by voice</b> in Bangla / Banglish / dialect.</li>
+            <li>Extract <b>structured clinical information</b> and detect what is missing.</li>
+            <li>Ask <b>targeted follow-up questions</b> until the case is complete.</li>
+            <li>Assess <b>risk</b> with safety rules and <b>explainable</b> reasoning.</li>
+            <li>Produce a doctor-ready record and <b>integrate with the EHR (FHIR)</b>.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout">
+        <div class="ctitle">SAFETY BY DESIGN</div>
+        <ul class="clist">
+          <li>Preserve the patient's <b>exact words</b></li>
+          <li><b>Never diagnose</b> — narrows, never names a disease</li>
+          <li>Red-flag symptoms force the <b>Critical</b> tier</li>
+          <li><b>Synthetic / consented</b> data only</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card navy grow" style="overflow:hidden;">
+        <div class="chead"><div class="n">3</div><h3>Methodology</h3></div>
+        <div class="pipe">
+          <div class="pstage"><div class="num">1</div><div><h4>SPEAK</h4><p>Voice input — Bangla / Banglish / dialect</p></div></div>
+          <div class="pstage cy"><div class="num">2</div><div><h4>UNDERSTAND</h4><p>Speech→text, cleaned; symptoms extracted</p></div><div class="mods">M1–M3</div></div>
+          <div class="pstage"><div class="num">3</div><div><h4>COMPLETE</h4><p>Find gaps; follow-up loop until complete</p></div><div class="mods">M6–M9 ↺</div></div>
+          <div class="pstage cy"><div class="num">4</div><div><h4>ASSESS</h4><p>Risk Low→Critical + red-flag check; explained</p></div><div class="mods">M10–M11</div></div>
+          <div class="pstage"><div class="num">5</div><div><h4>DOCUMENT</h4><p>Structured report → EHR; FHIR · PDF · DOCX</p></div><div class="mods">M12–M13</div></div>
+          <div class="pstage cy"><div class="num">6</div><div><h4>REVIEW</h4><p>Medic triage &amp; doctor review → consultation</p></div><div class="mods">M14–M15</div></div>
+          <div class="pnote"><b style="color:#eafff6">Raw words preserved.</b> 16 ASR systems benchmarked to choose the approach.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card grow">
+        <div class="chead"><div class="n">4</div><h3>Results</h3></div>
+        <div class="cbody">
+          <div class="rfig"><img src="assets/stt_wer_poster.png" alt="ASR WER comparison"></div>
+          <p><b>16 ASR systems</b> benchmarked on multi-dialect medical speech: best <b>47% WER</b>, <b>8 failed</b> (≥100%), larger models worse — proving a single-pass transcript is unsafe.</p>
+          <p class="cap">Offline research benchmark — the live prototype uses the browser Web Speech API, not these models.</p>
+          <div class="stats"><div><b>16</b><span>models tested</span></div><div><b>47%</b><span>best WER</span></div><div><b>8</b><span>failed (≥100%)</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 SYSTEM FEATURES : all six real screenshots -->
+  <div class="gallery grow">
+    <div class="chead"><div class="n">5</div><h3>System Features — the three portals &amp; the clinical record</h3></div>
+    <div class="grid">
+      <div class="shot"><div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <div class="imgwrap"><img src="assets/patient_conversation.png" alt="Patient voice conversation"></div>
+        <div class="scap"><b>Patient kiosk</b> — live voice conversation &amp; spoken follow-up (Bangla)</div></div>
+      <div class="shot"><div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <div class="imgwrap"><img src="assets/medic_triage_queue.png" alt="Medic triage queue"></div>
+        <div class="scap"><b>Medic triage</b> — risk-ordered queue, AI reasoning &amp; field verification</div></div>
+      <div class="shot"><div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <div class="imgwrap"><img src="assets/doctor_safety_xai.png" alt="Doctor portal safety and EHR actions"></div>
+        <div class="scap"><b>Doctor portal</b> — safety panel, patient history &amp; EHR / prescription actions</div></div>
+      <div class="shot"><div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <div class="imgwrap"><img src="assets/patient_summary_bn.png" alt="Patient review summary (English)"></div>
+        <div class="scap"><b>Patient review</b> — 10-field structured summary, confirm before submit</div></div>
+      <div class="shot"><div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <div class="imgwrap"><img src="assets/patient_summary_en.png" alt="Patient review summary (Bangla)"></div>
+        <div class="scap"><b>Patient review (Bangla)</b> — same summary &amp; follow-up, fully bilingual</div></div>
+      <div class="shot"><div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+        <div class="imgwrap"><img src="assets/ehr_fhir_output.png" alt="Structured bilingual EHR record"></div>
+        <div class="scap"><b>Clinical record</b> — structured bilingual EHR document (FHIR · PDF · DOCX)</div></div>
+    </div>
+  </div>
+
+  <!-- 6 TECHNOLOGY STACK -->
+  <div class="tech">
+    <div class="chead"><div class="n">6</div><h3>Technology Stack</h3></div>
+    <div class="tgrid">
+      <div class="tgrp"><b>Backend</b><div class="chips"><span>Python</span><span>FastAPI</span><span>REST + WebSocket</span></div></div>
+      <div class="tgrp"><b>Voice</b><div class="chips"><span>Web Speech API (STT, bn-BD)</span><span>edge-tts (Bangla TTS)</span></div></div>
+      <div class="tgrp"><b>AI / LLM</b><div class="chips"><span>Gemini</span><span>Groq</span><span>OpenRouter</span><span>+ fallback</span></div></div>
+      <div class="tgrp"><b>Data &amp; Export</b><div class="chips"><span>SQLite + Alembic</span><span>HL7 FHIR R4</span><span>fpdf2</span><span>python-docx</span></div></div>
+      <div class="tgrp"><b>Frontend</b><div class="chips"><span>HTML · CSS · JS</span><span>Patient · Medic · Doctor portals</span></div></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <b>Assists the doctor — never replaces or diagnoses.</b>
+    <span>Bangla · Banglish · Dialects&nbsp; |&nbsp; Preserves the patient's exact words&nbsp; |&nbsp; Built &amp; tested on synthetic / consented data</span>
+  </div>
+
+</div>
+</body></html>
